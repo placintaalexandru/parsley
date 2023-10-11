@@ -1,0 +1,94 @@
+name: Nightly
+permissions:
+  contents: read
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  schedule:
+    # Every day at midnight: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule
+    - cron:  '0 0 * * *'
+concurrency:
+  # Cancel old actions upon push
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+jobs:
+  # https://twitter.com/mycoliza/status/1571295690063753218
+  nightly:
+    runs-on: ubuntu-latest
+    name: nightly / test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install nightly
+        uses: actions-rs/toolchain@v1
+        with:
+          # Works only for custom toolchains as stable will install default components
+          # Limit the scope of rustup installation: https://blog.rust-lang.org/2019/10/15/Rustup-1.20.0.html#profiles
+          profile: minimal
+          toolchain: nightly
+
+      - name: Generate lock file
+        # GitHub actions magic to check if the lock file does not exist
+        if: hashFiles('Cargo.lock') == ''
+        uses: actions-rs/cargo@v1
+        with:
+          command: generate-lockfile
+
+      - name: Test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --release --locked --all-features --all-targets
+
+      # https://github.com/rust-lang/cargo/issues/6669
+      - name: Test doc
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --release --locked --all-features --doc
+  update:
+    runs-on: ubuntu-latest
+    name: beta / update
+    # There's no point running this if no Cargo.lock was checked in the
+    # first place, since we'd just redo what happened in the regular test job.
+    # Unfortunately, hashFiles only works in if on steps, so we repeat it.
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install nightly
+        uses: actions-rs/toolchain@v1
+        with:
+          # Works only for custom toolchains as stable will install default components
+          # Limit the scope of rustup installation: https://blog.rust-lang.org/2019/10/15/Rustup-1.20.0.html#profiles
+          profile: minimal
+          toolchain: beta
+        if: hashFiles('Cargo.lock') != ''
+
+      - name: cargo update
+        uses: actions-rs/cargo@v1
+        with:
+          command: update
+        if: hashFiles('Cargo.lock') != ''
+
+      - name: Test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --release --locked --all-features --all-targets
+        env:
+          RUSTFLAGS: -D deprecated
+        if: hashFiles('Cargo.lock') != ''
+
+      # https://github.com/rust-lang/cargo/issues/6669
+      - name: Test doc
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --release --locked --all-features --doc
+        env:
+          RUSTFLAGS: -D deprecated
+        if: hashFiles('Cargo.lock') != ''
