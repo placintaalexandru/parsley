@@ -1,0 +1,102 @@
+name: Test
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  # Cancel old actions upon push
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+jobs:
+  # Runs tests across multiple toolchains and operating systems
+  required:
+    runs-on: ${{ matrix.os }}
+    name: test / ${{ matrix.os }} / ${{ matrix.toolchain }}
+    strategy:
+      matrix:
+        os:
+          - macos-latest
+          - windows-latest
+          - ubuntu-latest
+        toolchain:
+          - stable
+          - beta
+    steps:
+      # if your project needs OpenSSL, uncomment this to fix Windows builds.
+      # it's commented out by default as the installation command takes 5-10m.
+      # - run: echo "VCPKG_ROOT=$env:VCPKG_INSTALLATION_ROOT" | Out-File -FilePath $env:GITHUB_ENV -Append
+      #   if: runner.os == 'Windows'
+      # - run: vcpkg install openssl:x64-windows-static-md
+      #   if: runner.os == 'Windows'
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install ${{ matrix.toolchain }}
+        uses: actions-rs/toolchain@v1
+        with:
+          # Works only for custom toolchains as stable will install default components
+          # Limit the scope of rustup installation: https://blog.rust-lang.org/2019/10/15/Rustup-1.20.0.html#profiles
+          profile: minimal
+          toolchain: ${{ matrix.toolchain }}
+
+      - name: Generate lock file
+        # GitHub actions magic to check if the lock file does not exist
+        if: hashFiles('Cargo.lock') == ''
+        uses: actions-rs/cargo@v1
+        with:
+          command: generate-lockfile
+
+      - name: Test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --release --locked --all-features --all-targets
+
+      # https://github.com/rust-lang/cargo/issues/6669
+      - name: Test doc
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --release --locked --all-features --doc
+  coverage:
+    runs-on: ubuntu-latest
+    name: stable / coverage
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install stable
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          components: llvm-tools-preview
+
+      - name: Install cargo-llvm-cov
+        uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: cargo-llvm-cov
+
+      - name: Generate lock file
+        # GitHub actions magic to check if the lock file does not exist
+        if: hashFiles('Cargo.lock') == ''
+        uses: actions-rs/cargo@v1
+        with:
+          command: generate-lockfile
+
+      - name: Run cargo-llvm-cov
+        uses: actions-rs/cargo@v1
+        with:
+          command: llvm-cov
+          args: --locked --all-features --lcov --output-path lcov.info
+
+      - name: Upload to codecov.io
+        uses: codecov/codecov-action@v3
+        with:
+          # token: ${{ secrets.CODECOV_TOKEN }}
+          # Exit with error if codecov runs into error
+          fail_ci_if_error: true
+          verbose: true
