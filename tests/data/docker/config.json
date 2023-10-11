@@ -1,0 +1,93 @@
+{
+  "architecture": "arm64",
+  "author": "author",
+  "config": {
+    "Hostname": "",
+    "Domainname": "",
+    "User": "1001",
+    "AttachStdin": false,
+    "AttachStdout": false,
+    "AttachStderr": false,
+    "ExposedPorts": {
+      "5432/tcp": {}
+    },
+    "Tty": false,
+    "OpenStdin": false,
+    "StdinOnce": false,
+    "Env": [
+      "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/15/bin",
+      "GOSU_VERSION=1.16",
+      "LANG=en_US.utf8",
+      "PG_MAJOR=15",
+      "PG_VERSION=15.4-1.pgdg120+1",
+      "PGDATA=/var/lib/postgresql/data"
+    ],
+    "Cmd": [
+      "postgres"
+    ],
+    "Image": "sha256:92c6e333aa36edb1932ac4198c20f986e32ad86ebd3c71bac7005ce622a6412c",
+    "Volumes": {
+      "/var/lib/postgresql/data": {}
+    },
+    "WorkingDir": "/postgres",
+    "Entrypoint": [
+      "docker-entrypoint.sh"
+    ],
+    "Labels": {
+      "maintainer": "someone"
+    },
+    "StopSignal": "SIGINT",
+    "Memory": 2048,
+    "MemorySwap": 4096,
+    "CpuShares": 8,
+    "ArgsEscaped": false,
+    "OnBuild": [
+      "a",
+      "b"
+    ],
+    "Shell": [
+      "/bin/bash",
+      "-o",
+      "pipefail",
+      "-c"
+    ],
+    "Healthcheck": {
+      "Test": [
+        "CMD-SHELL",
+        "/usr/bin/check-health localhost"
+      ],
+      "Interval": 30000000000,
+      "Timeout": 10000000000,
+      "Retries": 3,
+      "StartInterval": 3000000000
+    }
+  },
+  "container": "850331b21eb942e9dad178c06146950af0dbe9b0794213e3fa9306637db74286",
+  "created": "2023-08-16T06:40:57.929475525Z",
+  "docker_version": "20.10.23",
+  "history": [
+    {
+      "created": "2023-08-15T23:39:57.178505081Z",
+      "created_by": "/bin/sh -c #(nop) ADD file:bc58956fa3d1aff2efb0264655d039fedfff28dc4ff19a65a235e82754ee1cfa in / "
+    },
+    {
+      "created": "2023-08-15T23:39:57.574431303Z",
+      "created_by": "/bin/sh -c #(nop)  CMD [\"bash\"]",
+      "empty_layer": true
+    },
+    {
+      "created": "2023-08-16T06:38:58.796057889Z",
+      "created_by": "/bin/sh -c set -eux; \tgroupadd -r postgres --gid=999; \tuseradd -r -g postgres --uid=999 --home-dir=/var/lib/postgresql --shell=/bin/bash postgres; \tmkdir -p /var/lib/postgresql; \tchown -R postgres:postgres /var/lib/postgresql"
+    }
+  ],
+  "os": "linux",
+  "rootfs": {
+    "type": "layers",
+    "diff_ids": [
+      "sha256:1c3daa06574284614db07a23682ab6d1c344f09f8093ee10e5de4152a51677a1",
+      "sha256:310729fcb068da6941441d9627a3d8979e7dbd015c220324331e34af28b7e20c",
+      "sha256:6cc6868915f4c4d399ec0026fd321acfd0b92e84cd2a51076e89041b3e3118b6"
+    ]
+  },
+  "variant": "v8"
+}

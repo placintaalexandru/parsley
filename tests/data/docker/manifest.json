@@ -1,0 +1,13 @@
+[
+  {
+    "Config": "ee56d70bcdf1aeca472a9899de653eb4d72f4a3ac31d9b0b95e677488ce766f3.json",
+    "RepoTags": [
+      "postgres:15.4"
+    ],
+    "Layers": [
+      "3b05311756d94678c1ea8e45bf7665a4e29f850c31c6f58d6c28403c6fdc0cdc/layer.tar",
+      "454d82adf13f02e53baeae05d06b595b34bbab2836977c6b679488ec038449c3/layer.tar",
+      "c039956656e1c9cd1e2d72dba02179b8d9008e0c0771af344944e218c7dc3351/layer.tar"
+    ]
+  }
+]
