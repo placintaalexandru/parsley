@@ -35,7 +35,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install ${{ matrix.toolchain }}
-        uses: actions-rs/toolchain@v1
+        uses: placintaalexandru/toolchain@v1
         with:
           # Works only for custom toolchains as stable will install default components
           # Limit the scope of rustup installation: https://blog.rust-lang.org/2019/10/15/Rustup-1.20.0.html#profiles
@@ -69,7 +69,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install stable
-        uses: actions-rs/toolchain@v1
+        uses: placintaalexandru/toolchain@v1
         with:
           toolchain: stable
           components: llvm-tools-preview
