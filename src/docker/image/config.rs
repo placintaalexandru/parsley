@@ -423,4 +423,12 @@ mod tests {
             "Deserialized config from serialized config is different"
         );
     }
+
+    #[test]
+    fn test() {
+        if {
+            let x = true;
+            x
+        } {}
+    }
 }

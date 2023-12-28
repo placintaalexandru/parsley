@@ -54,9 +54,8 @@ jobs:
           components: clippy
 
       - name: Clippy check
-        uses: actions-rs/clippy-check@v1
+        uses: crusty-pie/clippy@feat/Forck-chores
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           # Run all features on the current crate only, without dependencies
           args: --all-features --release --no-deps --tests
         # Clippy's specifics only
