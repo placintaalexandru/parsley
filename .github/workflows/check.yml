@@ -54,7 +54,7 @@ jobs:
           components: clippy
 
       - name: Clippy check
-        uses: crusty-pie/rust-clippy-reborn@v1.0.0
+        uses: crusty-pie/clippy@v1.0.0
         with:
           # Run all features on the current crate only, without dependencies
           args: --all-features --release --no-deps --tests
